@@ -2,15 +2,20 @@ import React, { useRef, useState } from 'react';
 import './App.css';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { Mesh } from 'three';
-import { Geometry } from 'three-stdlib';
-let eixo = { box: { x: -1.2, z: 0 }, boxPink: { x: 0, z: 0 } };
 
-const collision = ({ position, geometry }: { position:{ x: number, z: number }  , geometry: { parameters?:{ width: number, height: number }} | any}) => {
-  const { x } = position
-  const collisionEixoX = eixo.box.x - (0.5 + 0.5 * geometry.parameters.width) < x && eixo.box.x > x  - (0.5 + 0.5 * geometry.parameters.width) 
- 
-  if(collisionEixoX){
-    console.log('')
+let eixo = { box: { x: -1.2, y: 0, z: 0 }, boxPink: { x: 0, z: 0 } };
+
+const collision = ({ position, geometry }: { position: { x: number, y: number, z: number }, geometry: { parameters?: { width: number, height: number } } | any }) => {
+  const { x, y, z } = position
+  const collisionEixoX = eixo.box.x - (0.5 + 0.5 * geometry.parameters.width) < x 
+  && eixo.box.x > x - (0.5 + 0.5 * geometry.parameters.width)
+  const collisionEixoY = eixo.box.y - (0.5 + 0.5 * geometry.parameters.height) < y 
+  && eixo.box.y > y - (0.5 + 0.5 * geometry.parameters.height)
+  const collisionEixoZ = eixo.box.z + (0.5 + 0.5 * geometry.parameters.height) > z
+  && eixo.box.z < z + (0.5 + 0.5 * geometry.parameters.height)
+
+  if (collisionEixoX && collisionEixoY && collisionEixoZ) {
+    console.log('bateu')
   }
 }
 
@@ -19,7 +24,6 @@ function Box (props: { position: any, keyboardButton: string, movi: (event: stri
   const [clicked, click] = useState(false)
 
   useFrame((_state, _delta) => {
-    console.log(ref.current.position)
     if (props.keyboardButton === 'a') {
       ref.current.position.x -= 0.01
     }
@@ -34,14 +38,6 @@ function Box (props: { position: any, keyboardButton: string, movi: (event: stri
     }
     eixo.box = ref.current.position
   })
-
-
-  props.keyboardButton === 's' ?
-    useFrame((_state, _delta) => {
-
-      console.log(ref.current.geometry)
-    })
-    : useFrame((_state, _delta) => ref.current.position.y -= 0)
 
   return (
     <mesh
@@ -58,7 +54,7 @@ function Box (props: { position: any, keyboardButton: string, movi: (event: stri
 function BoxPink (props: { position: any, keyboardButton: string, movi: (event: string) => void }) {
   const ref = useRef<Mesh>(null!)
   const [clicked, click] = useState(false)
-  console.log(ref.current)
+
   useFrame((_state, _delta) => {
 
 
@@ -73,6 +69,12 @@ function BoxPink (props: { position: any, keyboardButton: string, movi: (event: 
     }
     else if (props.keyboardButton === 'ArrowDown') {
       ref.current.position.z += 0.01
+    }
+    else if (props.keyboardButton === 'q') {
+      ref.current.rotation.x += 0.01
+    }
+    else if (props.keyboardButton === 'e') {
+      ref.current.rotation.x -= 0.01
     }
     
     collision(ref.current)
